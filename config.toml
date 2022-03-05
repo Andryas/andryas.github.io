@@ -18,7 +18,7 @@ defaultContentLanguage = "en-us"
 title = "Wavrzenczak"
 theme = "hugo-tranquilpeak-theme"
 # disqusShortname = "hugo-tranquilpeak-theme"
-googleAnalytics = "UA-118192695-1"
+googleAnalytics = "G-J3P8ZQPTYF"
 paginate = 7
 canonifyurls = true
 
