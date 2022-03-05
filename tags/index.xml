@@ -2,35 +2,35 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on Wavrzenczak</title>
-    <link>https://varvenza.com/public/tags/</link>
+    <link>https://varvenza.com/tags/</link>
     <description>Recent content in Tags on Wavrzenczak</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 05 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://varvenza.com/public/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 05 Mar 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://varvenza.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>async</title>
-      <link>https://varvenza.com/public/tags/async/</link>
+      <link>https://varvenza.com/tags/async/</link>
       <pubDate>Sat, 05 Mar 2022 00:00:00 +0000</pubDate>
       
-      <guid>https://varvenza.com/public/tags/async/</guid>
+      <guid>https://varvenza.com/tags/async/</guid>
       <description></description>
     </item>
     
     <item>
       <title>shiny</title>
-      <link>https://varvenza.com/public/tags/shiny/</link>
+      <link>https://varvenza.com/tags/shiny/</link>
       <pubDate>Sat, 05 Mar 2022 00:00:00 +0000</pubDate>
       
-      <guid>https://varvenza.com/public/tags/shiny/</guid>
+      <guid>https://varvenza.com/tags/shiny/</guid>
       <description></description>
     </item>
     
     <item>
       <title>tsp</title>
-      <link>https://varvenza.com/public/tags/tsp/</link>
+      <link>https://varvenza.com/tags/tsp/</link>
       <pubDate>Sat, 05 Mar 2022 00:00:00 +0000</pubDate>
       
-      <guid>https://varvenza.com/public/tags/tsp/</guid>
+      <guid>https://varvenza.com/tags/tsp/</guid>
       <description></description>
     </item>
     
