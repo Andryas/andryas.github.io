@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <script type="application/ld+json">
+
+{  
+  "@context":"http://schema.org",
+  "@type":"Website",
+  "@id":"https:\/\/varvenza.com",
+  "author": {
+    "@type": "Person",
+    "name": "Andryas Wavrzenczak",
+    
+    "image": "https://varvenza.com/images/gandalf.jpg"
+    
+  },
+  "name":"Wavrzenczak",
+  "description":"\u003cp\u003eGreetings earthlings!\u003c\/p\u003e\n\u003cp\u003eIf you are reading this, you already know the power and beauty of Shiny, so I won’t spend your time explaining this.\u003c\/p\u003e",
+  "url":"https:\/\/varvenza.com\/post\/async-programming-in-shiny-plus-spinners\/",
+  "keywords":"[]"
+}
+
+</script>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.93.2 with theme Tranquilpeak 0.5.3-BETA">
+<meta name="author" content="Andryas Wavrzenczak">
+<meta name="keywords" content="">
+<meta name="description" content="Greetings earthlings!
+If you are reading this, you already know the power and beauty of Shiny, so I won’t spend your time explaining this.">
+
+
+<meta property="og:description" content="Greetings earthlings!
+If you are reading this, you already know the power and beauty of Shiny, so I won’t spend your time explaining this.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Async programming in Shiny plus Spinners">
+<meta name="twitter:title" content="Async programming in Shiny plus Spinners">
+<meta property="og:url" content="https://varvenza.com/post/async-programming-in-shiny-plus-spinners/">
+<meta property="twitter:url" content="https://varvenza.com/post/async-programming-in-shiny-plus-spinners/">
+<meta property="og:site_name" content="Wavrzenczak">
+<meta property="og:description" content="Greetings earthlings!
+If you are reading this, you already know the power and beauty of Shiny, so I won’t spend your time explaining this.">
+<meta name="twitter:description" content="Greetings earthlings!
+If you are reading this, you already know the power and beauty of Shiny, so I won’t spend your time explaining this.">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2022-03-05T00:00:00">
+  
+  
+    <meta property="article:modified_time" content="2022-03-05T00:00:00">
+  
+  
+  
+    
+      <meta property="article:section" content="shiny">
+    
+  
+  
+    
+      <meta property="article:tag" content="async">
+    
+      <meta property="article:tag" content="shiny">
+    
+      <meta property="article:tag" content="tsp">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://varvenza.com/images/gandalf.jpg">
+  <meta property="twitter:image" content="https://varvenza.com/images/gandalf.jpg">
+
+
+
+
+
+
+    <title>Async programming in Shiny plus Spinners</title>
+
+    <link rel="icon" href="https://varvenza.com/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://varvenza.com/post/async-programming-in-shiny-plus-spinners/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha512-H9jrZiiopUdsLpg94A333EfumgUBpO9MdbxStdeITo+KEIMaNfHNvwyjjDJb+ERPaRS6DpyRlKbvPUasNItRyw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    
+    
+    <link rel="stylesheet" href="https://varvenza.com/css/style-h6ccsoet3mzkbb0wngshlfbaweimexgqcxj0h5hu4h82olsdzz6wmqdkajm.min.css" />
+    
+    
+
+    
+      
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-118192695-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://varvenza.com/" aria-label="Go to homepage">Wavrzenczak</a>
+  </div>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://varvenza.com/#about" aria-label="Read more about the author">
+          <img class="sidebar-profile-picture" src="https://varvenza.com/images/gandalf.jpg" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">Andryas Wavrzenczak</h4>
+        
+          <h5 class="sidebar-profile-bio">Statistician by nature and skateboarder by the roads</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://varvenza.com/" title="Home">
+    
+      <i class="sidebar-button-icon fas fa-lg fa-home" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://varvenza.com/categories" title="Categories">
+    
+      <i class="sidebar-button-icon fas fa-lg fa-bookmark" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://varvenza.com/tags" title="Tags">
+    
+      <i class="sidebar-button-icon fas fa-lg fa-tags" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://varvenza.com/archives" title="Archives">
+    
+      <i class="sidebar-button-icon fas fa-lg fa-archive" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/andryas" target="_blank" rel="noopener" title="GitHub">
+    
+      <i class="sidebar-button-icon fab fa-lg fa-github" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://stackoverflow.com/users/8089337/andryas-waurzenczak" target="_blank" rel="noopener" title="Stack Overflow">
+    
+      <i class="sidebar-button-icon fab fa-lg fa-stack-overflow" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">Stack Overflow</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://www.instagram.com/andryaswzk/" target="_blank" rel="noopener" title="Instagram">
+    
+      <i class="sidebar-button-icon fab fa-lg fa-instagram" aria-hidden="true"></i>
+      
+      <span class="sidebar-button-desc">Instagram</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" id="top">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title">
+      Async programming in Shiny plus Spinners
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time datetime="2022-03-05T00:00:00Z">
+        
+  March 5, 2022
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="https://varvenza.com/categories/shiny">shiny</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown">
+            <div class="main-content-wrap">
+              <p>Greetings earthlings!</p>
+<p>If you are reading this, you already know the power and beauty of Shiny, so I won’t spend your time explaining this.</p>
+<h1 id="the-problem">The problem</h1>
+<p>Last week I had a task job to async a part of the code because it was freezing the entire application. For those that
+don’t know, the Shiny works in a sync way, which means it executes code in sequence, so if you click on one button and
+it has a long operation, the entire application will wait until the operation ends.</p>
+<p>To exemplify, I create a simple app with two extensive operations. The data you will find here consists of the distance
+between pairs of each city in the State of Parana in Brazil, some geographics coordinations and sf things to create
+maps. And we will be using the idea of Travel Salesman to illustrate. We will calculate all the possible routes between
+the cities you select, considering that the first one is the origin and seeing which ones have the shortest route.</p>
+<p>So, what is the idea? You can select a pool of cities, between a minimum of three and a max of seven, that is because
+less than three, no makes sense, and great than seven will take too much time.</p>
+<p>After you choose your cities, a distance matrix between pair of cities will appear and two spinners. The left of the
+distance matrix is all the possible routes in a DT, the first one is the shortest route, and the second spinner below
+the distance matrix is a moving plot. The scenario with seven cities will generate 720 plots, 6!, because, remember, the
+first city is our origin.</p>
+<p>So, we have two async operations, the first one that generates all possible routes to be taken, and the second one that
+depends on the previous one to generate all the plots. You’ll see that each element appears in Shiny dependable, so no
+more freezing problems.</p>
+<h1 id="the-code">The code</h1>
+<p><img src="https://raw.githubusercontent.com/Andryas/shiny-async/master/example.gif" alt=""></p>
+<p>Before the comment, if you want to go straight to the code&hellip;</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span>shiny<span style="color:#f92672">::</span><span style="color:#a6e22e">runGitHub</span>(<span style="color:#e6db74">&#34;Andryas/shiny-async&#34;</span>)
+</span></span></code></pre></div><p>The code can be find <a href="https://github.com/andryas/shiny-async">here</a> well commented, but I need to highlight a few
+things. The code below shows part of the server.R, note that I put a NULL at the end of the async blocks inside observer
+function and created two reactiveVal. The NULL is necessary to create this responsivity because the shiny would follow
+the sync way without it. And the reactiveVal to allocate the future_promise created.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-r" data-lang="r"><span style="display:flex;"><span><span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># wait for information about the cities selected then apply tsp.</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">observe</span>({
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">req</span>(<span style="color:#a6e22e">tb_cities_distance</span>())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    tb <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">tb_cities_distance</span>()
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">result_val</span>(<span style="color:#66d9ef">NULL</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">waiter_show</span>(
+</span></span><span style="display:flex;"><span>        id <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;cities_results_spinner&#34;</span>,
+</span></span><span style="display:flex;"><span>        html <span style="color:#f92672">=</span> waiter<span style="color:#f92672">::</span><span style="color:#a6e22e">spin_3</span>(),
+</span></span><span style="display:flex;"><span>        color <span style="color:#f92672">=</span> waiter<span style="color:#f92672">::</span><span style="color:#a6e22e">transparent</span>(<span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">waiter_show</span>(
+</span></span><span style="display:flex;"><span>        id <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;cities_plot_spinner&#34;</span>,
+</span></span><span style="display:flex;"><span>        html <span style="color:#f92672">=</span> waiter<span style="color:#f92672">::</span><span style="color:#a6e22e">spin_3</span>(),
+</span></span><span style="display:flex;"><span>        color <span style="color:#f92672">=</span> waiter<span style="color:#f92672">::</span><span style="color:#a6e22e">transparent</span>(<span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">future_promise</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">tsp_naivy</span>(tb)
+</span></span><span style="display:flex;"><span>    }) <span style="color:#f92672">%...&gt;%</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">result_val</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Return something other than the promise so shiny remains responsive</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">NULL</span>
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># after calculate all the possible routes generate all the possible plots</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">observe</span>({
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">req</span>(<span style="color:#a6e22e">result_val</span>())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    d <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">result_val</span>() <span style="color:#f92672">|&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">arrange</span>(cost)
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    plots <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">list</span>()
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">future_promise</span>({
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">library</span>(sf)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">for </span>(i in <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#a6e22e">nrow</span>(d)) {
+</span></span><span style="display:flex;"><span>            map <span style="color:#f92672">&lt;-</span> d[i, ]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            map2 <span style="color:#f92672">&lt;-</span> tibble<span style="color:#f92672">::</span><span style="color:#a6e22e">as_tibble</span>(tb_map) <span style="color:#f92672">|&gt;</span> 
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">left_join</span>(
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">tibble</span>(name_muni <span style="color:#f92672">=</span> <span style="color:#a6e22e">simplify</span>(<span style="color:#a6e22e">strsplit</span>(map<span style="color:#f92672">$</span>routes, <span style="color:#e6db74">&#34;;&#34;</span>))) <span style="color:#f92672">|&gt;</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#a6e22e">mutate</span>(direction <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span><span style="color:#a6e22e">n</span>(), fill <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;1&#34;</span>),
+</span></span><span style="display:flex;"><span>                    by <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;name_muni&#34;</span>
+</span></span><span style="display:flex;"><span>                ) <span style="color:#f92672">|&gt;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">mutate</span>(fill <span style="color:#f92672">=</span> <span style="color:#a6e22e">replace_na</span>(fill, <span style="color:#e6db74">&#34;0&#34;</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            p <span style="color:#f92672">&lt;-</span> map2 <span style="color:#f92672">|&gt;</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">ggplot</span>() <span style="color:#f92672">+</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">geom_sf</span>(<span style="color:#a6e22e">aes</span>(geometry <span style="color:#f92672">=</span> geom, fill <span style="color:#f92672">=</span> fill)) <span style="color:#f92672">+</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">geom_path</span>(
+</span></span><span style="display:flex;"><span>                        data <span style="color:#f92672">=</span> map2 <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">filter</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(direction)) <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">arrange</span>(direction),
+</span></span><span style="display:flex;"><span>                        <span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> longitude, y <span style="color:#f92672">=</span> latitude)
+</span></span><span style="display:flex;"><span>                    ) <span style="color:#f92672">+</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">geom_point</span>(
+</span></span><span style="display:flex;"><span>                        data <span style="color:#f92672">=</span> map2 <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">filter</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(direction) <span style="color:#f92672">&amp;</span> direction <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>),
+</span></span><span style="display:flex;"><span>                        <span style="color:#a6e22e">aes</span>(x <span style="color:#f92672">=</span> longitude, y <span style="color:#f92672">=</span> latitude), size <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>                    ) <span style="color:#f92672">+</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">theme_minimal</span>() <span style="color:#f92672">+</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">theme</span>(legend.position <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;none&#34;</span>) <span style="color:#f92672">+</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">scale_fill_manual</span>(values <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;#834d29&#34;</span>, <span style="color:#e6db74">&#34;#251ac5&#34;</span>)) <span style="color:#f92672">+</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#a6e22e">labs</span>(x <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>, y <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>, title <span style="color:#f92672">=</span> <span style="color:#a6e22e">paste0</span>(<span style="color:#e6db74">&#34;Path traveled: &#34;</span>, <span style="color:#a6e22e">formatC</span>(map<span style="color:#f92672">$</span>cost <span style="color:#f92672">/</span> <span style="color:#ae81ff">1000</span>, format <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;f&#34;</span>, big.mark <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;,&#34;</span>, digits <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>), <span style="color:#e6db74">&#34; km&#34;</span>))
+</span></span><span style="display:flex;"><span>            plots <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">append</span>(plots, <span style="color:#a6e22e">list</span>(p))
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        plots
+</span></span><span style="display:flex;"><span>    }) <span style="color:#f92672">%...&gt;%</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">result_plot</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Return something other than the promise so shiny remains responsive</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">NULL</span>
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>output<span style="color:#f92672">$</span>cities_layout_plot <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">renderUI</span>({
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">req</span>(<span style="color:#a6e22e">result_plot</span>())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">waiter_hide</span>(<span style="color:#e6db74">&#34;cities_plot_spinner&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">fluidRow</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">sliderInput</span>(
+</span></span><span style="display:flex;"><span>            inputId <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;cities_routes_plot&#34;</span>, 
+</span></span><span style="display:flex;"><span>            label <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>,
+</span></span><span style="display:flex;"><span>            min <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>            max <span style="color:#f92672">=</span> <span style="color:#a6e22e">length</span>(<span style="color:#a6e22e">result_plot</span>()), 
+</span></span><span style="display:flex;"><span>            value <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>, 
+</span></span><span style="display:flex;"><span>            step <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>,
+</span></span><span style="display:flex;"><span>            animate <span style="color:#f92672">=</span> <span style="color:#a6e22e">animationOptions</span>(<span style="color:#ae81ff">1000</span>)
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>output<span style="color:#f92672">$</span>cities_plot <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">renderPlot</span>({
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">req</span>(<span style="color:#a6e22e">result_plot</span>(), input<span style="color:#f92672">$</span>cities_routes_plot)
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">result_plot</span>()[[input<span style="color:#f92672">$</span>cities_routes_plot]]
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>output<span style="color:#f92672">$</span>cities_distance <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">renderDT</span>({
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">req</span>(<span style="color:#a6e22e">tb_cities_distance</span>())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">waiter_show</span>(
+</span></span><span style="display:flex;"><span>        id <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;cities_distance&#34;</span>,
+</span></span><span style="display:flex;"><span>        html <span style="color:#f92672">=</span> waiter<span style="color:#f92672">::</span><span style="color:#a6e22e">spin_3</span>(),
+</span></span><span style="display:flex;"><span>        color <span style="color:#f92672">=</span> waiter<span style="color:#f92672">::</span><span style="color:#a6e22e">transparent</span>(<span style="color:#ae81ff">.5</span>)
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">tb_cities_distance</span>() <span style="color:#f92672">|&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">datatable</span>(
+</span></span><span style="display:flex;"><span>            rownames <span style="color:#f92672">=</span> <span style="color:#66d9ef">FALSE</span>,
+</span></span><span style="display:flex;"><span>            options <span style="color:#f92672">=</span> <span style="color:#a6e22e">list</span>(
+</span></span><span style="display:flex;"><span>                dom <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;t&#39;</span>
+</span></span><span style="display:flex;"><span>            )
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># ...</span>
+</span></span></code></pre></div><p>Thank you for reading and hasta la vista muchachos.</p>
+<hr>
+<p>To know more about async things in Shiny Async programming in R and</p>
+<p><a href="https://www.r-bloggers.com/2018/07/long-running-tasks-with-shiny-challenges-and-solutions/">Long Runni&hellip;
+ng Tasks With Shiny: Challenges and Solutions</a></p>
+<p><a href="https://medium.com/@joe.cheng/async-programming-in-r-and-shiny-ebe8c5010790">Async programming in R and Shiny</a></p>
+              
+
+
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://varvenza.com/tags/async/">async</a>
+
+  <a class="tag tag--primary tag--small" href="https://varvenza.com/tags/shiny/">shiny</a>
+
+  <a class="tag tag--primary tag--small" href="https://varvenza.com/tags/tsp/">tsp</a>
+
+                  </div>
+                
+              
+            
+            
+<div class="post-actions-wrap">
+  <nav >
+    <ul class="post-actions post-action-nav">
+      
+        <li class="post-action">
+          
+            <a class="post-action-btn btn btn--disabled">
+          
+              <i class="fa fa-angle-left"></i>
+              <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+            </a>
+        </li>
+        <li class="post-action">
+          
+            <a class="post-action-btn btn btn--disabled">
+          
+              <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+              <i class="fa fa-angle-right"></i>
+            </a>
+        </li>
+      
+    </ul>
+  </nav>
+<ul class="post-actions post-action-share" >
+  
+    <li class="post-action hide-lg hide-md hide-sm">
+      <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Share this post">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </a>
+    </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://varvenza.com/post/async-programming-in-shiny-plus-spinners/" title="Share on Facebook" aria-label="Share on Facebook">
+          <i class="fab fa-facebook-square" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://varvenza.com/post/async-programming-in-shiny-plus-spinners/" title="Share on Twitter" aria-label="Share on Twitter">
+          <i class="fab fa-twitter" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://wa.me/?text=https://varvenza.com/post/async-programming-in-shiny-plus-spinners/" title="Share on Whatsapp" aria-label="Share on Whatsapp">
+          <i class="fab fa-whatsapp" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://www.linkedin.com/sharing/share-offsite/?url=https://varvenza.com/post/async-programming-in-shiny-plus-spinners/" title="Share on Linkedin" aria-label="Share on Linkedin">
+          <i class="fab fa-linkedin" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+  
+  
+    <li class="post-action">
+      <a class="post-action-btn btn btn--default" href="#disqus_thread" aria-label="Leave a comment">
+        <i class="far fa-comment"></i>
+      </a>
+    </li>
+  
+  <li class="post-action">
+    
+      <a class="post-action-btn btn btn--default" href="#top" aria-label="Back to top">
+      <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    
+    </a>
+  </li>
+</ul>
+</div>
+
+
+            
+  
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+    <script type="text/javascript">
+      var disqus_config = function() {
+        this.page.url = 'https:\/\/varvenza.com\/post\/async-programming-in-shiny-plus-spinners\/';
+        
+          this.page.identifier = '\/post\/async-programming-in-shiny-plus-spinners\/'
+        
+      };
+      (function() {
+        
+        
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+          document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+          return;
+        }
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        var disqus_shortname = 'hugo-tranquilpeak-theme';
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+    </script>
+  
+
+
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2022 <a href="https://github.com/andryas">Andryas Wavrzenczak</a>. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        
+<div class="post-actions-wrap">
+  <nav >
+    <ul class="post-actions post-action-nav">
+      
+        <li class="post-action">
+          
+            <a class="post-action-btn btn btn--disabled">
+          
+              <i class="fa fa-angle-left"></i>
+              <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+            </a>
+        </li>
+        <li class="post-action">
+          
+            <a class="post-action-btn btn btn--disabled">
+          
+              <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+              <i class="fa fa-angle-right"></i>
+            </a>
+        </li>
+      
+    </ul>
+  </nav>
+<ul class="post-actions post-action-share" >
+  
+    <li class="post-action hide-lg hide-md hide-sm">
+      <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Share this post">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </a>
+    </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://varvenza.com/post/async-programming-in-shiny-plus-spinners/" title="Share on Facebook" aria-label="Share on Facebook">
+          <i class="fab fa-facebook-square" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://varvenza.com/post/async-programming-in-shiny-plus-spinners/" title="Share on Twitter" aria-label="Share on Twitter">
+          <i class="fab fa-twitter" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://wa.me/?text=https://varvenza.com/post/async-programming-in-shiny-plus-spinners/" title="Share on Whatsapp" aria-label="Share on Whatsapp">
+          <i class="fab fa-whatsapp" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+      <li class="post-action hide-xs">
+        <a class="post-action-btn btn btn--default" target="new" href="https://www.linkedin.com/sharing/share-offsite/?url=https://varvenza.com/post/async-programming-in-shiny-plus-spinners/" title="Share on Linkedin" aria-label="Share on Linkedin">
+          <i class="fab fa-linkedin" aria-hidden="true"></i>
+        </a>
+      </li>
+    
+  
+  
+    <li class="post-action">
+      <a class="post-action-btn btn btn--default" href="#disqus_thread" aria-label="Leave a comment">
+        <i class="far fa-comment"></i>
+      </a>
+    </li>
+  
+  <li class="post-action">
+    
+      <a class="post-action-btn btn btn--default" href="#top" aria-label="Back to top">
+      <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    
+    </a>
+  </li>
+</ul>
+</div>
+
+
+      </div>
+      
+<div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-times"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fvarvenza.com%2Fpost%2Fasync-programming-in-shiny-plus-spinners%2F" aria-label="Share on Facebook">
+          <i class="fab fa-facebook-square" aria-hidden="true"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Fvarvenza.com%2Fpost%2Fasync-programming-in-shiny-plus-spinners%2F" aria-label="Share on Twitter">
+          <i class="fab fa-twitter" aria-hidden="true"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://wa.me/?text=https%3A%2F%2Fvarvenza.com%2Fpost%2Fasync-programming-in-shiny-plus-spinners%2F" aria-label="Share on Whatsapp">
+          <i class="fab fa-whatsapp" aria-hidden="true"></i><span>Share on Whatsapp</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fvarvenza.com%2Fpost%2Fasync-programming-in-shiny-plus-spinners%2F" aria-label="Share on Linkedin">
+          <i class="fab fa-linkedin" aria-hidden="true"></i><span>Share on Linkedin</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+
+
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-times"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://varvenza.com/images/gandalf.jpg" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">Andryas Wavrzenczak</h4>
+    
+      <div id="about-card-bio">Statistician by nature and skateboarder by the roads</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Data troubleshooter.
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker-alt"></i>
+        <br/>
+        Canada
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://varvenza.com/images/background.png');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/highlight.min.js" integrity="sha512-z+/WWfyD5tccCukM4VvONpEtLmbAm5LDu7eKiyMQJ9m7OfPEDL7gENyDRL3Yfe8XAuGsS2fS4xSMnl6d30kqGQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha512-uURl+ZXMBrF4AwGaWmEetzrd+J5/8NRkWAvJx5sbPSSuOb0bZLqf+tOzniObO00BjHa/dD7gub9oCGMLPQHtQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<script src="https://varvenza.com/js/script-yqzy9wdlzix4lbbwdnzvwx3egsne77earqmn73v9uno8aupuph8wfguccut.min.js"></script>
+
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-gE8KAQyFIzV1C9+GZ8TKJHZS2s+n7EjNtC+IMRn1l5+WYJTHOODUM6JSjZhFhqXmc7bG8Av6XXpckA4tYhflnw==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/apache.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-EWROca+bote+7Oaaar1F6y74iZj1r1F9rm/ly7o+/FwJopbBaWtsFDmaKoZDd3QiGU2pGacBirHJNivmGLYrow==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/go.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-GDVzAn0wpx1yVtQsRWmFc6PhJiLBPdUic+h4GWgljBh904O3JU10fk9EKNpVyIoPqkFn54rgL2QBG4BmUTMpiQ==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/http.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-UgZlma8NzkrDb/NWgmLIcTrH7i/CSnLLDRFqCSNF5NGPpjKmzyM25qcoXGOup8+cDakKyaiTDd7N4dyH4YT+IA==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/less.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-lot9koe73sfXIrUvIPM/UEhuMciN56RPyBdOyZgfO53P2lkWyyXN7J+njcxIIBRV+nVDQeiWtiXg+bLAJZDTfg==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/nginx.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-Zd3e7XxHP00TD0Imr0PIfeM0fl0v95kMWuhyAS3Wn1UTSXTkz0OhtRgBAr4JlmADRgiXr4x7lpeUdqaGN8xIog==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/puppet.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-qtqDO052iXMSP+5d/aE/jMtL9vIIGvONgTJziC2K/ZIB1yEGa55WVxGE9/08rSQ62EoDifS9SWVGZ7ihSLhzMA==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/scss.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-1NmkjnEDnwwwcu28KoQF8vs3oaPFokQHbmbtwGhFfeDsQZtVFI8zW2aE9O8yMYdpdyKV/5blE4pSWw4Z/Sv97w==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/stylus.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-B2wSfruPjr8EJL6IIzQr1eAuDwrsfIfccNf/LCEdxELCgC/S/ZMt/Uvk80aD79m7IqOqW+Sw8nbkvha20yZpzg==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/swift.min.js"></script>
+  
+
+  
+    <script async crossorigin="anonymous" defer integrity="sha512-28oDiQZGKUVN6wQ7PSLPNipOcmkCALXKwOi7bnkyFf8QiMZQxG9EQoy/iiNx6Zxj2cG2SbVa4dXKigQhu7GiFw==" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.1.0/languages/yaml.min.js"></script>
+  
+
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+
+
+    
+  </body>
+</html>
+

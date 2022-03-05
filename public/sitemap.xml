@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://varvenza.com/tags/async/</loc>
+    <lastmod>2022-03-05T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://varvenza.com/post/async-programming-in-shiny-plus-spinners/</loc>
+    <lastmod>2022-03-05T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://varvenza.com/categories/</loc>
+    <lastmod>2022-03-05T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://varvenza.com/post/</loc>
+    <lastmod>2022-03-05T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://varvenza.com/tags/shiny/</loc>
+    <lastmod>2022-03-05T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://varvenza.com/categories/shiny/</loc>
+    <lastmod>2022-03-05T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://varvenza.com/tags/</loc>
+    <lastmod>2022-03-05T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://varvenza.com/tags/tsp/</loc>
+    <lastmod>2022-03-05T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://varvenza.com/</loc>
+    <lastmod>2022-03-05T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://varvenza.com/archives/</loc>
+  </url>
+</urlset>
