@@ -4,3 +4,12 @@
 
 /themes/hugo-tranquilpeak-theme/**/*
 !/themes/hugo-tranquilpeak-theme/.gitrepo
+
+.DS_Store
+.Rproj.user/
+*.Rproj
+*.RData
+
+properties_gmaps.rds
+
+dev/*
