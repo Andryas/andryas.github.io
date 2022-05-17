@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>scraping on Wavrzenczak</title>
+    <link>https://varvenza.com/tags/scraping/</link>
+    <description>Recent content in scraping on Wavrzenczak</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 02 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://varvenza.com/tags/scraping/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The market of real estate in Montreal</title>
+      <link>https://varvenza.com/post/the-market-of-real-estate-in-montreal/</link>
+      <pubDate>Mon, 02 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://varvenza.com/post/the-market-of-real-estate-in-montreal/</guid>
+      <description>Greetings earthlings!
+Do you know what the main power of a data scientist is? It is the power to reduce the time experience needed for some knowledge fields, to become more independent about what the worlds tell you how the things work vs your own inferences based on your own. For example, I recently moved to Montreal (CA), and I have seen a lot of people talking about the property’s valuation or how it has been hard to get something to rent… Most of the people I am talking about had been living here for more than 3 years, some of them already bought properties here.</description>
+    </item>
+    
+  </channel>
+</rss>
