@@ -1,0 +1,183 @@
+---
+title: "Walkscore in Montreal"
+subtitle: "From the series: real estate in Montreal"
+author: Andryas Wavrzenczak
+date: '2022-05-17'
+slug: real-estates-montreal-walkscore
+categories:
+  - real-estates
+tags:
+  - real-estates
+  - montreal
+  - walkscore
+comments: true
+showTags: true
+showPagination: true
+showSocial: true
+showDate: true
+thumbnailImage: post/montreal-real-estate/data/thumbnail.jpg
+thumbnailImagePosition: left
+summary: "A short description of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbours with an average greater than 60, which means good places for those looking for mobility."
+---
+
+```{r setup, message=FALSE, echo=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  fig.height = 9,
+  fig.width = 11
+)
+```
+
+```{r libs}
+library(sf)
+library(rgdal)
+library(tidyverse)
+library(echarts4r)
+library(geojsonsf)
+library(kableExtra)
+library(wesanderson)
+
+library(ggsflabel)
+
+library(aw)
+
+prop <- readRDS("data/properties.rds")
+prop$tipology2 <- ifelse(prop$tipology == "house", "house", "condo")
+montreal <- readOGR("data/limadmin-shp/LIMADMIN.shp", verbose = FALSE) |>
+  st_as_sf(crs = 4326)
+montreal_json <- geojsonsf::sf_geojson(montreal |> rename(name = NOM))
+```
+
+Greetings earthlings!
+
+Today I want to explore with you the best places to walk in Montreal (Island) according to 
+[walkscore.com](https://www.walkscore.com/about.shtml). How are we going to do that? Through 
+crawled data, approximately 10k properties from the [centris.ca](https://centris.ca/en), 
+where we got the `walkscore` and some other information for future analysis. 
+
+To start, let's see what the walkscore.com says about its mission:
+
+> Our Mission
+> Walk Score's mission is to promote walkable neighbourhoods. Walkable
+> neighbourhoods are one of the simplest and best solutions for the environment,
+> our health, and our economy.
+
+and their vision
+
+> Our Vision
+> Our vision is for every property listing to read: Beds: 3 Baths: 2 Walk Score: 84.
+> We want to make it easy for people to evaluate walkability and transportation when choosing where to live.
+
+Basically, they try to provide a score that summarizes the accessibility of a place; with that in mind,
+areas, where we have bus stops, metros, taxis and space for movement will have the best scores. And places
+with few of those things will have a low score.
+
+```{r, fig.cap="All walkscore properties collected from centris"}
+ggplot() +
+  geom_sf(data = montreal, aes(geometry = geometry)) +
+  geom_point(data = prop, aes(x = lng, y = lat, color = walkscore)) +
+  geom_sf_label_repel(data = montreal, aes(label = NOM), force = 100, nudge_x = -0.01, seed = 10) +
+  scale_colour_gradientn(colours = wes_palette("Zissou1", 5, type = "continuous")) +
+  theme_minimal()
+# ggsave("data/thumbnail.jpg")
+```
+
+As we can see in the plot above, places where we have a colour tending to red will have a high score, and areas with 
+the colour tending to blue will have a low score. We notice that South-West of Montreal has lower scores; I don't know 
+exactly why, but probably because there are many houses there, so it sounds more like a "family place," where are less 
+population density.
+
+Now, imagine that you are new in the city and you don't know anything and want to rent a condo here. You probably will 
+try to find something downtown; it is where everything happens, right? But, downtown, in general, is more expensive than
+some furthest places, for that let's try to find the best neighbourhoods according to the walkscore and find the cheapest
+places to rent.
+
+```{r}
+prop |>
+  select(neighbourhood, walkscore) |>
+  group_by(neighbourhood) |>
+  summarise(avg = mean(walkscore, na.rm = TRUE), n = n()) |> 
+  rename(name = neighbourhood, value = avg) |>
+  e_charts(name) |>
+  e_map_register('Montreal', montreal_json) |>
+  e_map(value, map = 'Montreal') |>
+  e_visual_map(value) |>
+  e_title("The average walkscore by neighbourhood")
+```
+
+Above we have a plot that we can interact with to see the average walkscore by neighbourhood, and
+below we have the boxplot of which neighbourhood to have an idea of how the walkscore is distributed
+by neighbourhood.
+
+```{r}
+x <- prop |>
+  select(neighbourhood, walkscore) |>
+  group_by(neighbourhood) |>
+  summarise(avg = mean(walkscore, na.rm = TRUE), n = n())
+
+prop |>
+  mutate(
+    neighbourhood = factor(neighbourhood, levels(reorder(x$neighbourhood, x$avg))),
+    neighbourhood_fill = ifelse(neighbourhood %in% x$neighbourhood[x$avg >= 60], ">=60", "<60")
+  ) |>
+  ggplot() +
+  geom_boxplot(aes(x = neighbourhood, y = walkscore, fill = neighbourhood_fill), alpha = .5) +
+  geom_point(data = x, aes(x = neighbourhood, y = avg, color = "Average"), shape = 4, size = 3.5) +
+  theme_dark() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1)) +
+  scale_color_manual(values = c("Average" = "yellow"), name = "walkscore average") +
+  scale_fill_manual(values = wes_palette("Zissou1", 2, type = "continuous"), name = "walkscore group") +
+  labs(x = "")
+```
+ 
+The top neighbourdhoods are: 
+
+```{r, results='asis'}
+for (x in x[x$avg >= 60, ] |> arrange(desc(avg)) |> pull(neighbourhood)) {
+  cat("* ",  x, "\n")
+}
+```
+
+Selecting those neighbourhood with an average walkscore great than 60 (see the list above)
+and getting the top 10 cheapest places to rent for each of these neighbourhoods, we have this table below
+that you can check.
+
+```{r}
+prop |>
+  filter(neighbourhood %in% (
+    prop |>
+      select(neighbourhood, walkscore) |>
+      group_by(neighbourhood) |>
+      summarise(avg = mean(walkscore, na.rm = TRUE)) |>
+      filter(avg >= 60) |>
+      pull(neighbourhood)
+  )) |> 
+  filter(tipology2 == "condo" & type == "rent") |>
+    select(url, neighbourhood, price) |>
+    group_by(neighbourhood) |>
+    arrange(price) |>
+    slice(1:10) |>
+    ungroup() |>
+    mutate(url = cell_spec("link", "html", link = url))  |> 
+    kbl(digits = 4, escape = FALSE) |>
+    kable_styling(c('striped', 'hover')) |> 
+    scroll_box(width = "100%", height = "500px")
+```
+
+And to end this short post about the walkscore a summarize by neighbourdhood.
+
+```{r}
+simple_summarize(data = prop, var = "walkscore", neighbourhood) |>
+  select(-var, -total_na, -pct_na) |>
+  arrange(desc(avg)) |> 
+  kbl(digits = 4) |>
+  kable_styling(c('striped', 'hover')) |>
+  footnote(number = c("q25, q75 means the quantiles, i.e, q25: 25% of the properties walkscore are below of this value", "sd means standard desviation", "med it the q50 or median")) |> 
+  scroll_box(width = "100%",  height = "500px")
+```
+
+The next short post about Montreal will be "What is the oldest house in Montreal?", 
+see you.
