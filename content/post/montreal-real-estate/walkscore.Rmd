@@ -1,5 +1,5 @@
 ---
-title: "Walkscore in Montreal"
+title: "Let's take a walk in Montreal"
 subtitle: "From the series: real estate in Montreal"
 author: Andryas Wavrzenczak
 date: '2022-05-17'
@@ -17,7 +17,7 @@ showSocial: true
 showDate: true
 thumbnailImage: post/montreal-real-estate/data/thumbnail.jpg
 thumbnailImagePosition: left
-summary: "A short description of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbours with an average greater than 60, which means good places for those looking for mobility."
+summary: "An exploration of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbourhoods with a walkscore average greater than 60, which means good places for those looking for mobility."
 ---
 
 ```{r setup, message=FALSE, echo=FALSE}
@@ -55,10 +55,10 @@ Greetings earthlings!
 
 Today I want to explore with you the best places to walk in Montreal (Island) according to 
 [walkscore.com](https://www.walkscore.com/about.shtml). How are we going to do that? Through 
-crawled data, approximately 10k properties from the [centris.ca](https://centris.ca/en), 
+data from [centris.ca](https://centris.ca/en), I crawled approximately 10k properties, 
 where we got the `walkscore` and some other information for future analysis. 
 
-To start, let's see what the walkscore.com says about its mission:
+To start, let's see what the walkscore.com says about their mission:
 
 > Our Mission
 > Walk Score's mission is to promote walkable neighbourhoods. Walkable
@@ -72,23 +72,34 @@ and their vision
 > We want to make it easy for people to evaluate walkability and transportation when choosing where to live.
 
 Basically, they try to provide a score that summarizes the accessibility of a place; with that in mind,
-areas, where we have bus stops, metros, taxis and space for movement will have the best scores. And places
-with few of those things will have a low score.
+areas, where we have bus stops, metros and taxis stops will have the best scores. And places with few of 
+those things will have a low score.
+
+```{r, fig.cap="Montreal neighbourhood"}
+ggplot() +
+  geom_sf(data = montreal, aes(geometry = geometry)) +
+  # geom_point(data = prop, aes(x = lng, y = lat, color = walkscore)) +
+  geom_sf_label_repel(data = montreal, aes(label = NOM), force = 50, seed = 10) +
+  scale_colour_gradientn(colours = wes_palette("Zissou1", 5, type = "continuous")) +
+  theme_void()
+```
 
 ```{r, fig.cap="All walkscore properties collected from centris"}
 ggplot() +
   geom_sf(data = montreal, aes(geometry = geometry)) +
   geom_point(data = prop, aes(x = lng, y = lat, color = walkscore)) +
-  geom_sf_label_repel(data = montreal, aes(label = NOM), force = 100, nudge_x = -0.01, seed = 10) +
+  # geom_sf_label_repel(data = montreal, aes(label = NOM), force = 100, nudge_x = -0.01, seed = 10) +
   scale_colour_gradientn(colours = wes_palette("Zissou1", 5, type = "continuous")) +
-  theme_minimal()
+  theme_void()
 # ggsave("data/thumbnail.jpg")
 ```
 
+
+
 As we can see in the plot above, places where we have a colour tending to red will have a high score, and areas with 
 the colour tending to blue will have a low score. We notice that South-West of Montreal has lower scores; I don't know 
-exactly why, but probably because there are many houses there, so it sounds more like a "family place," where are less 
-population density.
+exactly why, but probably because there are many houses there, so it sounds more like a "family place," where it has a
+lower population density.
 
 Now, imagine that you are new in the city and you don't know anything and want to rent a condo here. You probably will 
 try to find something downtown; it is where everything happens, right? But, downtown, in general, is more expensive than
@@ -162,7 +173,7 @@ prop |>
     slice(1:10) |>
     ungroup() |>
     mutate(url = cell_spec("link", "html", link = url))  |> 
-    kbl(digits = 4, escape = FALSE) |>
+    kbl(digits = 4, escape = FALSE, caption = "Cheapest condo in the best walkscore neighbourhoods") |>
     kable_styling(c('striped', 'hover')) |> 
     scroll_box(width = "100%", height = "500px")
 ```
@@ -173,7 +184,7 @@ And to end this short post about the walkscore a summarize by neighbourdhood.
 simple_summarize(data = prop, var = "walkscore", neighbourhood) |>
   select(-var, -total_na, -pct_na) |>
   arrange(desc(avg)) |> 
-  kbl(digits = 4) |>
+  kbl(digits = 4, caption = "Walkscore summary") |>
   kable_styling(c('striped', 'hover')) |>
   footnote(number = c("q25, q75 means the quantiles, i.e, q25: 25% of the properties walkscore are below of this value", "sd means standard desviation", "med it the q50 or median")) |> 
   scroll_box(width = "100%",  height = "500px")
