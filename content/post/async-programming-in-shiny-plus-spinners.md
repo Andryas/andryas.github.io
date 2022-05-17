@@ -14,6 +14,8 @@ showTags: true
 showPagination: true
 showSocial: true
 showDate: true
+# thumbnailImage: https://raw.githubusercontent.com/Andryas/shiny-async/master/example.gif
+# thumbnailImagePosition: left
 summary: "Last week I had a task job to async a part of the code because it was freezing the entire application. For those that
 don’t know, the Shiny works in a sync way, which means it executes code in sequence, so if you click on one button and
 it has a long operation, the entire application will wait until the operation ends."

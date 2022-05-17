@@ -13,3 +13,5 @@
 properties_gmaps.rds
 
 dev/*
+
+blogdown/

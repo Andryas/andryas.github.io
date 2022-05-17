@@ -109,7 +109,13 @@ canonifyurls = true
   identifier = "instagram"
   name = "Instagram"
   pre = "<i class=\"sidebar-button-icon fab fa-lg fa-instagram\" aria-hidden=\"true\"></i>"
-  url = "https://www.instagram.com/andryaswzk/"
+  url = "https://www.instagram.com/varvenza/"
+[[menu.links]]
+  weight = 4
+  identifier = "twitter"
+  name = "Twitter"
+  pre = "<i class=\"sidebar-button-icon fab fa-lg fa-twitter\" aria-hidden=\"true\"></i>"
+  url = "https://twitter.com/varvenza"
 
 # [[menu.misc]]
 #   weight = 1
