@@ -16,7 +16,7 @@
     
   },
   "name":"Wavrzenczak",
-  "description":"A short description of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbours with an average greater than 60, which means good places for those looking for mobility.",
+  "description":"An exploration of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbourhoods with a walkscore average greater than 60, which means good places for those looking for mobility.",
   "url":"https:\/\/varvenza.com\/post\/montreal-real-estate\/real-estates-montreal-walkscore\/",
   "keywords":"[]"
 }
@@ -28,18 +28,18 @@
 <meta name="generator" content="Hugo 0.93.2 with theme Tranquilpeak 0.5.3-BETA">
 <meta name="author" content="Andryas Wavrzenczak">
 <meta name="keywords" content="">
-<meta name="description" content="A short description of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbours with an average greater than 60, which means good places for those looking for mobility.">
+<meta name="description" content="An exploration of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbourhoods with a walkscore average greater than 60, which means good places for those looking for mobility.">
 
 
-<meta property="og:description" content="A short description of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbours with an average greater than 60, which means good places for those looking for mobility.">
+<meta property="og:description" content="An exploration of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbourhoods with a walkscore average greater than 60, which means good places for those looking for mobility.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Walkscore in Montreal">
-<meta name="twitter:title" content="Walkscore in Montreal">
+<meta property="og:title" content="Let&#39;s take a walk in Montreal">
+<meta name="twitter:title" content="Let&#39;s take a walk in Montreal">
 <meta property="og:url" content="https://varvenza.com/post/montreal-real-estate/real-estates-montreal-walkscore/">
 <meta property="twitter:url" content="https://varvenza.com/post/montreal-real-estate/real-estates-montreal-walkscore/">
 <meta property="og:site_name" content="Wavrzenczak">
-<meta property="og:description" content="A short description of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbours with an average greater than 60, which means good places for those looking for mobility.">
-<meta name="twitter:description" content="A short description of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbours with an average greater than 60, which means good places for those looking for mobility.">
+<meta property="og:description" content="An exploration of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbourhoods with a walkscore average greater than 60, which means good places for those looking for mobility.">
+<meta name="twitter:description" content="An exploration of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbourhoods with a walkscore average greater than 60, which means good places for those looking for mobility.">
 <meta property="og:locale" content="en-us">
 
   
@@ -84,7 +84,7 @@
   <meta property="twitter:image" content="https://varvenza.com/post/montreal-real-estate/data/thumbnail.jpg">
 
 
-    <title>Walkscore in Montreal</title>
+    <title>Let&#39;s take a walk in Montreal</title>
 
     <link rel="icon" href="https://varvenza.com/favicon.png">
     
@@ -250,7 +250,7 @@ if (!doNotTrack) {
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title">
-      Walkscore in Montreal
+      Let&#39;s take a walk in Montreal
     </h1>
   
   
@@ -291,9 +291,9 @@ if (!doNotTrack) {
 <p>Greetings earthlings!</p>
 <p>Today I want to explore with you the best places to walk in Montreal (Island) according to
 <a href="https://www.walkscore.com/about.shtml">walkscore.com</a>. How are we going to do that? Through
-crawled data, approximately 10k properties from the <a href="https://centris.ca/en">centris.ca</a>,
+data from <a href="https://centris.ca/en">centris.ca</a>, I crawled approximately 10k properties,
 where we got the <code>walkscore</code> and some other information for future analysis.</p>
-<p>To start, let’s see what the walkscore.com says about its mission:</p>
+<p>To start, let’s see what the walkscore.com says about their mission:</p>
 <blockquote>
 <p>Our Mission
 Walk Score’s mission is to promote walkable neighbourhoods. Walkable
@@ -307,18 +307,24 @@ Our vision is for every property listing to read: Beds: 3 Baths: 2 Walk Score: 8
 We want to make it easy for people to evaluate walkability and transportation when choosing where to live.</p>
 </blockquote>
 <p>Basically, they try to provide a score that summarizes the accessibility of a place; with that in mind,
-areas, where we have bus stops, metros, taxis and space for movement will have the best scores. And places
-with few of those things will have a low score.</p>
+areas, where we have bus stops, metros and taxis stops will have the best scores. And places with few of
+those things will have a low score.</p>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-1"></span>
-<img src="https://varvenza.com/post/montreal-real-estate/walkscore_files/figure-html/unnamed-chunk-1-1.png" alt="All walkscore properties collected from centris" width="1056" />
+<img src="https://varvenza.com/post/montreal-real-estate/walkscore_files/figure-html/unnamed-chunk-1-1.png" alt="Montreal neighbourhood" width="1056" />
 <p class="caption">
-Figure 1: All walkscore properties collected from centris
+Figure 1: Montreal neighbourhood
+</p>
+</div>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-2"></span>
+<img src="https://varvenza.com/post/montreal-real-estate/walkscore_files/figure-html/unnamed-chunk-2-1.png" alt="All walkscore properties collected from centris" width="1056" />
+<p class="caption">
+Figure 2: All walkscore properties collected from centris
 </p>
 </div>
 <p>As we can see in the plot above, places where we have a colour tending to red will have a high score, and areas with
 the colour tending to blue will have a low score. We notice that South-West of Montreal has lower scores; I don’t know
-exactly why, but probably because there are many houses there, so it sounds more like a “family place,” where are less
-population density.</p>
+exactly why, but probably because there are many houses there, so it sounds more like a “family place,” where it has a
+lower population density.</p>
 <p>Now, imagine that you are new in the city and you don’t know anything and want to rent a condo here. You probably will
 try to find something downtown; it is where everything happens, right? But, downtown, in general, is more expensive than
 some furthest places, for that let’s try to find the best neighbourhoods according to the walkscore and find the cheapest
@@ -328,7 +334,7 @@ places to rent.</p>
 <p>Above we have a plot that we can interact with to see the average walkscore by neighbourhood, and
 below we have the boxplot of which neighbourhood to have an idea of how the walkscore is distributed
 by neighbourhood.</p>
-<p><img src="https://varvenza.com/post/montreal-real-estate/walkscore_files/figure-html/unnamed-chunk-3-1.png" width="1056" /></p>
+<p><img src="https://varvenza.com/post/montreal-real-estate/walkscore_files/figure-html/unnamed-chunk-4-1.png" width="1056" /></p>
 <p>The top neighbourdhoods are:</p>
 <ul>
 <li>Le Plateau-Mont-Royal</li>
@@ -348,6 +354,9 @@ and getting the top 10 cheapest places to rent for each of these neighbourhoods,
 that you can check.</p>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:500px; overflow-x: scroll; width:100%; ">
 <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:unnamed-chunk-6">Table 1: </span>Cheapest condo in the best walkscore neighbourhoods
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
@@ -1578,6 +1587,9 @@ Westmount
 <p>And to end this short post about the walkscore a summarize by neighbourdhood.</p>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:500px; overflow-x: scroll; width:100%; ">
 <table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;border-bottom: 0;">
+<caption>
+<span id="tab:unnamed-chunk-7">Table 2: </span>Walkscore summary
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">

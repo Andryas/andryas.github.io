@@ -1,0 +1,143 @@
+---
+title: "What is the oldest house in Montreal?"
+subtitle: "From the series: real estate in Montreal"
+author: Andryas Wavrzenczak
+date: '2022-05-18'
+slug: real-estates-montreal-walkscore
+categories:
+  - real-estates
+tags:
+  - real-estates
+  - montreal
+  - year-built
+comments: true
+showTags: true
+showPagination: true
+showSocial: true
+showDate: true
+draft: true
+thumbnailImage: https://mspublic.centris.ca/media.ashx?id=ADDD250D253D373D1B5EA62DE0&t=pi&sm=m&w=1024&h=1024
+thumbnailImagePosition: left
+summary: ""
+---
+
+```{r setup, message=FALSE, echo=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  fig.height = 9,
+  fig.width = 11
+)
+```
+
+```{r libs}
+library(sf)
+library(rgdal)
+library(tidyverse)
+library(echarts4r)
+library(geojsonsf)
+library(kableExtra)
+library(wesanderson)
+
+library(ggsflabel)
+
+library(aw)
+
+prop <- readRDS("data/properties.rds")
+prop$tipology2 <- ifelse(prop$tipology == "house", "house", "condo")
+montreal <- readOGR("data/limadmin-shp/LIMADMIN.shp", verbose = FALSE) |>
+  st_as_sf(crs = 4326)
+montreal_json <- geojsonsf::sf_geojson(montreal |> rename(name = NOM))
+```
+
+Now, let's explore how old are this city.
+
+From the table results below, we notice that 50% of the properties we collected
+were built before 1993. Suppose this data is a good representation of the
+properties of Montreal. What would we say about the property's age? is 1993 new
+or old? 
+
+```{r}
+prop |>
+  arrange(year_built)
+
+simple_summarize(data = prop, var = "year_built") |>
+  select(-var) |>
+  kbl(digits = 4) |>
+  kable_styling(c('striped', 'hover')) |>
+  scroll_box(width = "100%")
+
+```
+
+The same analysis but now by neighbourhood.
+
+```{r}
+simple_summarize(data = prop, var = "year_built", neighbourhood) |>
+  select(-var) |>
+  arrange(min) |>
+  kbl(digits = 4) |>
+  kable_styling(c('striped', 'hover')) |>
+  scroll_box(width = "100%")
+# datatable(
+#   rownames = FALSE,
+#   caption = "House vs apartment",
+#   options = list(
+#     dom = "plt",
+#     scrollX = TRUE
+#   )
+# )
+```
+
+How do we interpret this graph? So, observe that at the top of each map have a
+name, min for a minimum year, q25 that means quantile of 25%, i.e., 25% of the
+properties are lower than this value, we also have the average, the median, the
+q75 that has the same interpretation that median and q25, and maximum.
+
+Take a look at the first plot (min). The oldest part of the city is located on
+the coast. Going to the median plot, we can see that half of the properties in
+those three light blue neighbourhoods are below 1890. We can say that they are
+more traditional places. And the pink neighbourhood is more newest, where half
+of the properties are great than in 1990. At the maximum plot, we can say that
+all neighbourhoods have at least one property year great than 1990.
+
+```{r}
+montreal |>
+  left_join(
+    simple_summarize(data = prop, var = "year_built", neighbourhood) |>
+      select(-var),
+    by = c("NOM" = "neighbourhood")
+  ) |>
+  select(min, q25, med, avg, q75, max, geometry) |>
+  gather(variable, value, -geometry) |>
+  mutate(variable = factor(variable, c("min", "q25", "avg", "med", "q75",
+    "max"))) |>
+  drop_na(value) |>
+  mutate(value2 = cut(value, c(seq(min(value), max(value), 50), max(value)),
+    include.lowest = TRUE,
+    righ = TRUE,
+    labels = c(seq(min(value), max(value), 50)))) |>
+  ggplot() +
+  geom_sf(aes(fill = value2), alpha = .5) +
+  theme_minimal() +
+  theme(legend.title = element_blank()) +
+  scale_fill_manual(values = wes_palette("Zissou1", 7, type = "continuous")) +
+  facet_wrap(~variable)
+
+# prop |>
+#   group_by(tipology2, neighbourhood) |>
+#   count(sort = TRUE) |>
+#   spread(tipology2, n) |>
+#   mutate(ratio = condo / house) |>
+#   filter(condo + house >= 50) |>
+#   arrange(desc(ratio)) |>
+#   rename(name = neighbourhood, value = ratio) |>
+#   e_charts(name) |>
+#   e_map_register('Montreal', montreal_json) |>
+#   e_map(value, map = 'Montreal') |>
+#   e_visual_map(value)
+```
+
+
+Ok, I know that isn't my best graph until now...
