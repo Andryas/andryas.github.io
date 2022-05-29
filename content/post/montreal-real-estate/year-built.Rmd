@@ -1,9 +1,9 @@
 ---
-title: "What is the oldest house in Montreal?"
+title: "What is the oldest property in Montreal?"
 subtitle: "From the series: real estate in Montreal"
 author: Andryas Wavrzenczak
-date: '2022-05-18'
-slug: real-estates-montreal-walkscore
+date: '2022-05-29'
+slug: real-estates-year-built
 categories:
   - real-estates
 tags:
@@ -15,10 +15,12 @@ showTags: true
 showPagination: true
 showSocial: true
 showDate: true
-draft: true
+draft: false
 thumbnailImage: https://mspublic.centris.ca/media.ashx?id=ADDD250D253D373D1B5EA62DE0&t=pi&sm=m&w=1024&h=1024
 thumbnailImagePosition: left
-summary: ""
+summary: "Something exciting about the real estate data in Canada is that most of the  websites give the year built of each property, and through this, we will see  where the oldest part of Montreal is. Is the old port really old?"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, message=FALSE, echo=FALSE}
@@ -47,31 +49,35 @@ library(aw)
 
 prop <- readRDS("data/properties.rds")
 prop$tipology2 <- ifelse(prop$tipology == "house", "house", "condo")
+prop <- prop |>
+  select(url, year_built, lat, lng, tipology2, neighbourhood)
 montreal <- readOGR("data/limadmin-shp/LIMADMIN.shp", verbose = FALSE) |>
   st_as_sf(crs = 4326)
 montreal_json <- geojsonsf::sf_geojson(montreal |> rename(name = NOM))
 ```
 
-Now, let's explore how old are this city.
 
-From the table results below, we notice that 50% of the properties we collected
-were built before 1993. Suppose this data is a good representation of the
-properties of Montreal. What would we say about the property's age? is 1993 new
-or old? 
+Before start is essential to say that what we are exploring here is data crawled
+from the Centris, so it is a property sample from Montreal; my inferences here 
+will be estimation, approximation for the true values; it is good to give an 
+idea about the places in Montreal.
+
+Let's start seeing a summary of the whole data.
 
 ```{r}
-prop |>
-  arrange(year_built)
-
 simple_summarize(data = prop, var = "year_built") |>
   select(-var) |>
-  kbl(digits = 4) |>
+  kbl(digits = 4, caption = "Summary year built") |>
   kable_styling(c('striped', 'hover')) |>
   scroll_box(width = "100%")
-
 ```
 
-The same analysis but now by neighbourhood.
+The table above shows that 50% of the properties we collected were built before 
+1992 (med=1992). The oldest house we found is dated 1690! I don't know if it is 
+correct, but if it is, congratulation to Montreal; you've been pretty strict in 
+dating properties.
+
+Now let's open it by neighbourhood.
 
 ```{r}
 simple_summarize(data = prop, var = "year_built", neighbourhood) |>
@@ -80,64 +86,68 @@ simple_summarize(data = prop, var = "year_built", neighbourhood) |>
   kbl(digits = 4) |>
   kable_styling(c('striped', 'hover')) |>
   scroll_box(width = "100%")
-# datatable(
-#   rownames = FALSE,
-#   caption = "House vs apartment",
-#   options = list(
-#     dom = "plt",
-#     scrollX = TRUE
-#   )
-# )
 ```
 
-How do we interpret this graph? So, observe that at the top of each map have a
-name, min for a minimum year, q25 that means quantile of 25%, i.e., 25% of the
-properties are lower than this value, we also have the average, the median, the
-q75 that has the same interpretation that median and q25, and maximum.
+As we can see from the table above, the oldest property we have in our database
+comes from Ville-Marie (1690); besides, it is the neighbourhood with the most 
+significant number of observations, 2358.
 
-Take a look at the first plot (min). The oldest part of the city is located on
-the coast. Going to the median plot, we can see that half of the properties in
-those three light blue neighbourhoods are below 1890. We can say that they are
-more traditional places. And the pink neighbourhood is more newest, where half
-of the properties are great than in 1990. At the maximum plot, we can say that
-all neighbourhoods have at least one property year great than 1990.
+A good visualition for this kind situation is the boxplot.
 
 ```{r}
-montreal |>
-  left_join(
-    simple_summarize(data = prop, var = "year_built", neighbourhood) |>
-      select(-var),
-    by = c("NOM" = "neighbourhood")
-  ) |>
-  select(min, q25, med, avg, q75, max, geometry) |>
-  gather(variable, value, -geometry) |>
-  mutate(variable = factor(variable, c("min", "q25", "avg", "med", "q75",
-    "max"))) |>
-  drop_na(value) |>
-  mutate(value2 = cut(value, c(seq(min(value), max(value), 50), max(value)),
-    include.lowest = TRUE,
-    righ = TRUE,
-    labels = c(seq(min(value), max(value), 50)))) |>
-  ggplot() +
-  geom_sf(aes(fill = value2), alpha = .5) +
-  theme_minimal() +
-  theme(legend.title = element_blank()) +
-  scale_fill_manual(values = wes_palette("Zissou1", 7, type = "continuous")) +
-  facet_wrap(~variable)
-
-# prop |>
-#   group_by(tipology2, neighbourhood) |>
-#   count(sort = TRUE) |>
-#   spread(tipology2, n) |>
-#   mutate(ratio = condo / house) |>
-#   filter(condo + house >= 50) |>
-#   arrange(desc(ratio)) |>
-#   rename(name = neighbourhood, value = ratio) |>
-#   e_charts(name) |>
-#   e_map_register('Montreal', montreal_json) |>
-#   e_map(value, map = 'Montreal') |>
-#   e_visual_map(value)
+prop |>
+  ggplot(aes(x = neighbourhood, y = year_built)) +
+  geom_boxplot() +
+  coord_flip() +
+  theme_minimal()
 ```
 
+We can see the year-built distribution by each neighbourhood.
 
-Ok, I know that isn't my best graph until now...
+A visualization of all properties that we collected from centris. We notice 
+that it is predominantly from 1900 later, but let's break the year into classes.
+
+```{r}
+prop |>
+  drop_na(year_built) |> 
+  ggplot() +
+  geom_sf(data = montreal) +
+  geom_point(aes(x = lng, y = lat, color = year_built)) +
+  scale_colour_gradientn(colours = wes_palette("Zissou1", 5, type = "continuous")) +
+  theme_void() +
+  theme(legend.title = element_blank())
+```
+
+In the plot below, we can see better the patterns; first, the oldest properties 
+in Montreal are in the old port, so the old port lives up to the name. Second, 
+we have many properties between [1800-1900], and I can't stop wondering how 
+they could have kept this information all these years. And third, the most 
+common building age in our database from centris is between [1900-2000], 
+followed by [2000-2022].  
+
+```{r}
+prop |>
+  mutate(year_built_cut = cut(year_built, c(1600, 1800, 1900, 2000, 2022), dig.lab = 10)) |>
+  drop_na(year_built) |>
+  ggplot() +
+  geom_sf(data = montreal) +
+  geom_point(aes(x = lng, y = lat, color = year_built_cut)) +
+  scale_color_viridis_d(option = "inferno") +
+  theme_void() +
+  theme(legend.title = element_blank()) +
+  facet_wrap(~year_built_cut)
+```
+
+To end this post, a shortlist of the 10 oldest properties in Montreal (remember 
+we crawled this data from centris, so it is a sample).
+
+```{r}
+prop |>
+  arrange(year_built) |>
+  slice(1:10) |>
+  select(-lat, -lng,-tipology2) |> 
+  kbl(digits = 4) |>
+  kable_styling(c('striped', 'hover'))
+```
+
+Cheers.
