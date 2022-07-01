@@ -15,7 +15,7 @@ showTags: true
 showPagination: true
 showSocial: true
 showDate: true
-thumbnailImage: post/montreal-real-estate/data/thumbnail.jpg
+thumbnailImage: post/montreal-real-estate/www/thumbnail.jpg
 thumbnailImagePosition: left
 summary: "An exploration of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbourhoods with a walkscore average greater than 60, which means good places for those looking for mobility."
 ---

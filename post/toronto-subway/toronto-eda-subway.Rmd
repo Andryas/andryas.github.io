@@ -1,0 +1,696 @@
+---
+title: "Exploring the subway data from Toronto"
+subtitle: "Exploratory data analysis"
+author: Andryas Wavrzenczak
+date: '2022-06-01'
+slug: eda-toronto-subway
+categories:
+  - open-data
+tags:
+  - eda
+  - toronto
+  - subway
+comments: true
+showTags: true
+showPagination: true
+showSocial: true
+showDate: true
+draft: false
+# thumbnailImage: post/montreal-real-estate/data/thumbnail.jpg
+thumbnailImagePosition: left
+summary: ""
+---
+
+```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
+library(knitr)
+
+opts_chunk$set(
+    echo = FALSE,
+    warning = FALSE,
+    message = FALSE,
+    cache = FALSE,
+    fig.width = 12,
+    fig.align = 'center'
+)
+```
+
+```{r libs}
+# library(kableExtra)
+
+library(tidyverse)
+library(lubridate)
+library(echarts4r)
+
+library(gt)
+```
+
+# TTC Subway Delay Data
+
+This data contains only observation that had some issue, 
+can be a delay or a problem at the vehicle or something else.
+
+![](https://toronto-info.com/files/toronto-subway-map-i.jpg)
+
+# Import data
+
+The data was download from [TTC Subway Delay Data](https://open.toronto.ca/dataset/ttc-subway-delay-data/), 
+it was considered every year from 2018. 
+
+```{r data}
+# print(list.files("data", full.names = TRUE))
+data <- map(list.files("data", full.names = TRUE, pattern = "[0-9]+.xlsx"), function(.x) {
+    map(readxl::excel_sheets(.x), function(.y) {
+        readxl::read_xlsx(.x, .y)
+    }) |>
+        bind_rows()
+})
+data <- map(data, function(.x) {
+    .x |>
+        mutate(
+            ymd = ymd(Date),
+            hh = as.integer(str_extract(Time, "[0-9]{2}(?=:)")),
+            mm = as.integer(str_extract(Time, "(?<=:)[0-9]{2}")),
+            year = year(ymd),
+            month = month(ymd),
+            day_label = factor(Day, c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")),
+            day = day(ymd),
+            delay = ifelse(`Min Delay` > 0, 1, 0)
+        ) |>
+        select(-Date, -Time, -Day) |>
+        rename(
+            station = Station,
+            code = Code,
+            min_delay = `Min Delay`,
+            min_gap = `Min Gap`,
+            bound = Bound,
+            line = Line,
+            vehicle = Vehicle
+        )
+})
+data <- bind_rows(data)
+
+codes <- read_csv("data/codes.csv")
+
+data <- data |>
+    left_join(codes, by = "code")
+
+# https://open.toronto.ca/dataset/ttc-subway-shapefiles/
+# sf::read_sf("data/ttc-subway-shapefile-wgs84/TTC_SUBWAY_LINES_WGS84.shp")
+# sf::read_sf("data/ttc-subway-shapefile-wgs84/")
+```
+
+# Dictionaries
+
+## Headers
+
+| Field   Name 	| Description                               	| Example          	|
+|--------------	|-------------------------------------------	|------------------	|
+| Date         	| Date (YYYY/MM/DD)                         	| 2016-12-31       	|
+| Time         	| Time (24h clock)                          	| 01:59            	|
+| Day          	| Name of the day of the week               	| Saturday         	|
+| Station      	| TTC subway station name                   	| Rosedale Station 	|
+| Code         	| TTC delay code                            	| MUIS             	|
+| Min Delay    	| Delay (in minutes) to subway service      	| 5                	|
+| Min Gap      	| Time length (in minutes) between trains   	| 9                	|
+| Bound        	| Direction of train dependant on the line  	| N                	|
+| Line         	| TTC subway line i.e. YU, BD, SHP, and SRT 	| YU               	|
+| Vehicle      	| TTC train number                          	| 5961             	|
+
+# Brief
+
+```{r}
+dlookr::diagnose(data |> select(station:ymd)) |>
+    gt() |>
+    tab_options(page.height = '100%', container.height = '500px', table.width = '500px')
+
+# data |>
+#     filter(is.na(bound)) |>
+#     dlookr::diagnose()
+
+# data |>
+#     filter(is.na(bound)) |>
+#     count(year)
+
+# data |>
+#     filter(is.na(bound)) |>
+#     count(vehicle, sort = TRUE)
+
+# data |>
+#     filter(vehicle == 3000 & is.na(bound))
+```
+
+# Exploring Variable Domain
+
+## How many codes are there? And what are the most commons?
+
+```{r}
+commom_codes <- data |>
+    count(code, sort = TRUE) |>
+    left_join(codes, by = "code")
+
+commom_codes |>
+    gt() |>
+    tab_options(page.height = '100%', container.height = '500px', table.width = '500px')
+
+# commom_codes |>
+#     filter(is.na(description))
+
+# # Total the codes with no description
+# commom_codes |>
+#     filter(is.na(description)) |>
+#     nrow()
+
+# ## It representation
+# (commom_codes |>
+#     filter(is.na(description)) |> pull(n) |> sum()) /
+#     (sum(commom_codes$n))
+```
+
+## How many lines are there? And what are the most commons?
+
+Using this [map](https://toronto-info.com/subway-map/) as baseline, there are 4 main lines.
+
+```{r}
+commom_line <- data |>
+    count(line, sort = TRUE) |>
+    drop_na()
+# commom_line
+
+# Set as NA line that are different from YU/BD/SRT/SHP
+data$line2 <- data$line
+data$line2[str_detect(data$line2, "^YU$|^BD$|^SRT$|^SHP$", negate = TRUE)] <- NA
+
+commom_line_2 <- data |>
+    count(line2, sort = TRUE)
+commom_line_2 |>
+    gt() |>
+    tab_options(page.height = '100%', container.height = '500px', table.width = '500px')
+```
+
+## How many stations are there? And what are the most commons?
+
+```{r}
+commom_station <- data |>
+    count(station, sort = TRUE)
+
+# NOTE problem misspelling
+# According to the website 73/74
+
+# (commom_station |>
+#     filter(str_detect(station, "STATION$")) |>
+#     pull(n) |>
+#     sum()) / sum(commom_station$n)
+
+# # names_station <- httr::GET("https://en.wikipedia.org/wiki/List_of_Toronto_subway_stations")
+# names_station <- httr::GET("https://simple.wikipedia.org/wiki/List_of_Toronto_subway_and_RT_stations")
+# names_station <- XML::readHTMLTable(XML::htmlParse(names_station), header = TRUE)[[2]]
+# names_station <- names_station[[2]]
+# names_station <- str_replace_all(names_station, "[[:punct:]]+", " ")
+# names_station <- trimws(tolower(str_replace_all(names_station, "\\s+", " ")))
+# x2 <- map(x, function(.x) {
+#     # .x <- sample(x, 1)
+#     .x <- x[3]
+#     index <- stringdist::stringsim(.x, names_station, method = "jw")
+#     if (max(index) >= 0.7) {
+#         names_station[which.max(index)]
+#     } else {
+#         NA
+#     }
+# }) |>
+#     unlist()
+# x2
+
+data$station2 <- data$station
+data$station2[str_detect(data$station2, "STATION$", negate = TRUE)] <- NA
+
+commom_station <- data |>
+    count(station2, sort = TRUE)
+
+# commom_station |>
+#     filter(str_detect(station2, "YONGE"))
+
+data <- data |>
+    mutate(
+        station2 = str_replace_all(station2, "[[:punct:]]+", " "),
+        station2 = str_replace_all(station2, "FICNH", "FINCH"),
+        station2 = str_replace_all(station2, "CALIR", "CLAIR"),
+        station2 = str_replace_all(station2, "MCCOWAN", "MC COWAN"),
+        station2 = str_replace_all(station2, "WELLSLEY", "WELLESLEY"),
+        station2 = str_replace_all(station2, "LANSDOWN", "LANSDOWNE"),
+        station2 = str_replace_all(station2, "BATHUSRT", "BATHURST"),
+        station2 = str_replace_all(station2, "BESSARIAN", "BESSARION"),
+        station2 = str_replace_all(station2, "DON MLLS", "DON MILLS"),
+        station2 = str_replace_all(station2, "DUNDA", "DUNDAS"),
+        station2 = str_replace_all(station2, "EGINTON", "EGLINTON"),
+        station2 = str_replace_all(station2, "GLENCARIN", "GLENCAIRN"),
+        station2 = str_replace_all(station2, "DOWNVIEW|DONLANDS", "DOWNSVIEW"),
+        station2 = str_replace_all(station2, "KILPING", "KIPLING"),
+        station2 = str_replace_all(station2, "OSSIGNTON", "OSSINGTON"),
+        station2 = str_replace_all(station2, "STC|SEHP|CTR|BD|YUS|YU|WEST|S PARK|S QUAY|\\bTO .+(?=STATION)|PARD|LOWER|PSUDO|SRT|SUB|MC|SHEP|SHP|SHEPPARD", " "),
+        station2 = str_replace_all(station2, "\\s+", " "),
+        station2 = str_replace_all(station2, "STATION", ""),
+        station2 = trimws(station2)
+    )
+data$station2[data$station2 == ""] <- NA
+
+commom_station <- data |>
+    count(station2, sort = TRUE)
+
+# (commom_station |>
+#     filter(is.na(station2)) |>
+#     pull(n)) / sum(commom_station$n)
+
+commom_station |>
+    gt() |>
+    tab_options(page.height = '100%', container.height = '500px', table.width = '500px')
+```
+
+## How many bounds are there? And what are the most commons?
+
+```{r}
+# data |>
+#     count(bound, sort = TRUE)
+
+data$bound2 <- data$bound
+data$bound2[data$bound2 %in% c("B", "0", "5")] <- NA
+
+data |>
+    count(bound2, sort = TRUE) |>
+    gt() |>
+    tab_options(page.height = '100%', container.height = '500px', table.width = '500px')
+
+# data |>
+#     count(bound2, sort = TRUE)
+
+# (data |>
+#     count(bound2, sort = TRUE) |>
+#     filter(is.na(bound2)) |>
+#     pull(n)) / nrow(data)
+```
+
+## How many issues happened by year? And by month? And week?
+
+```{r}
+data |>
+    count(year) |>
+    mutate(year = as.character(year)) |>
+    e_chart(year) |>
+    e_bar(n) |>
+    e_tooltip("axis")
+
+data |>
+    count(year, month) |>
+    mutate(ymd = ymd(str_c(year, ifelse(month < 10, str_c("0", month), month), "01"))) |>
+    e_chart(ymd) |>
+    e_line(n) |>
+    e_tooltip("axis")
+
+data |>
+    count(year, day_label) |>
+    group_by(year) |>
+    e_chart(day_label) |>
+    e_line(n) |>
+    e_tooltip("axis")
+```
+
+## How many vehicles are there? Which are the most used?
+
+```{r}
+data |>
+    count(vehicle, sort = TRUE) |>
+    gt() |>
+    tab_options(page.height = '100%', container.height = '500px', table.width = '500px')
+
+# (data |>
+#     count(vehicle, sort = TRUE) |>
+#     filter(vehicle == 0) |>
+#     pull(n)) / nrow(data)
+```
+
+
+# Looking for patterns
+
+## Which are the worst lines/stations?
+
+```{r}
+worst_lines <- data |>
+    group_by(year, line2) |>
+    count(sort = TRUE) |>
+    arrange(year) |>
+    drop_na() |>
+    mutate(year = as.character(year))
+
+worst_lines |>
+    group_by(line2) |>
+    e_chart(year) |>
+    e_line(n) |>
+    e_tooltip("axis") |>
+    e_title("Total of issues by year and line")
+
+worst_lines_stations <- data |>
+    group_by(year, line2, station2) |>
+    count(sort = TRUE) |>
+    drop_na() |>
+    spread(year, n) |>
+    janitor::adorn_totals("col") |>
+    as_tibble() |>
+    arrange(desc(Total)) |>
+    mutate_if(is.numeric, replace_na, 0)
+
+worst_lines_stations |>
+    gt(caption = "Total of issues by year, line and station") |>
+    tab_options(page.height = "100%", container.height = "500px", table.width = "500px")
+```
+
+<br/>
+<br/>
+<br/>
+
+The top 5 worst line-station represented `r scales::percent((data |> filter(station2 %in% worst_lines_stations$station2[1:5]) |>  nrow()) / nrow(data))` in
+the last five years.
+
+### The worst kind of issues for the top 5 worst line-station.
+
+```{r}
+data |>
+    filter(station2 %in% worst_lines_stations$station2[1:5]) |>
+    group_by(year, station2, line2, description) |>
+    count() |>
+    spread(year, n) |>
+    janitor::adorn_totals("col") |>
+    as_tibble() |>
+    arrange(desc(Total)) |>
+    mutate_if(is.numeric, replace_na, 0) |>
+    gt() |>
+    tab_options(page.height = "100%", container.height = "500px", table.width = "500px")
+```
+
+<br/>
+<br/>
+<br/>
+
+Looking only at the first ten rows seems that some issues were already solved, for example, in the first row, 
+it was a problem between 2018/2019 but fell after down dramatically. 
+
+In any case, using basically knowledge of linear regression let's estimate the "issue growth rate" and see
+by line-station which were that grew the most.
+
+```{r}
+worst_line_station_codes <- data |>
+    filter(station2 %in% worst_lines_stations$station2[1:5]) |>
+    group_by(year, station2, line2, description) |>
+    count() |>
+    ungroup() |> 
+    mutate(n = replace_na(n, 0)) |> 
+    group_by(station2, line2, description) |>
+    group_split() |> 
+    map(function(.x) {
+        m0 <- lm(n ~ year, data = .x)
+        # .x$b0 <- coefficients(m0)[1]
+        .x$b1 <- coefficients(m0)[2]
+        .x
+    }) |> 
+    bind_rows()
+
+worst_line_station_codes |>
+    select(-year, -n) |>
+    distinct() |>
+    arrange(desc(b1)) |>
+    mutate(b1 = round(b1, 2)) |> 
+    gt() |>
+    cols_label(
+        b1 = html("<b>issue growth rate<b/>")
+    ) |> 
+    tab_options(page.height = "100%", container.height = "500px", table.width = "500px") |> 
+    tab_style(
+        style = list(
+            cell_fill(color = "#F9E3D6"),
+            cell_text(style = "italic")
+        ),
+        locations = cells_body(
+            rows = 1:4
+        )
+    )
+```
+
+<br/>
+<br/>
+
+Filtering on the four biggest problem growth rates.
+
+```{r}
+data |>
+    inner_join(
+        worst_line_station_codes |>
+            select(-year, -n) |>
+            distinct() |>
+            arrange(desc(b1)) |>
+            mutate(b1 = round(b1, 2)) |>
+            slice(1:4) |> 
+            select(-b1),
+        by = c("station2", "line2", "description")
+    ) |> 
+    group_by(year, station2, line2, description) |>
+    count() |>
+    spread(year, n) |> 
+    janitor::adorn_totals("col") |>
+    as_tibble()  |> 
+    arrange(desc(Total)) |>
+    mutate_if(is.numeric, replace_na, 0) |> 
+    gt() |>
+    tab_options(page.height = "100%", container.height = "500px", table.width = "500px")
+```
+
+<br/>
+<br/>
+<br/>
+
+Here is essential to notice that 2022 has only five observations.
+
+## What is the total delay by station-line and year?
+
+To not bias the delay estimate, we filter only `min delay` great than 0 and vehicles different from 0.
+
+```{r}
+data |>
+    filter(min_delay > 0 & vehicle != 0) |>
+    group_by(year, line2, station2, bound2) |>
+    # summarise(avg = mean(min_delay)) |>
+    summarise(total_delay = sum(min_delay)) |>
+    drop_na() |> 
+    spread(year, total_delay) |>
+    janitor::adorn_totals("col") |>
+    as_tibble() |> 
+    arrange(desc(Total)) |> 
+    mutate_if(is.numeric, replace_na, 0) |> 
+    mutate_if(is.numeric, round, 2) |> 
+    gt() |>
+    tab_options(page.height = "100%", container.height = "500px", table.width = "500px")
+```
+
+<br/>
+<br/>
+
+Applying the same idea before to estimate the growth rate.
+
+```{r}
+delay_line_station_bound <- data |>
+    filter(min_delay > 0 & vehicle != 0) |>
+    group_by(year, line2, station2, bound2) |>
+    summarise(total_delay = sum(min_delay)) |>
+    drop_na() |> 
+    group_by(station2, line2, bound2) |>
+    group_split() |>
+    map(function(.x) {
+        m0 <- lm(total_delay ~ year, data = .x)
+        # .x$b0 <- coefficients(m0)[1]
+        .x$b1 <- coefficients(m0)[2]
+        .x
+    }) |>
+    bind_rows()
+
+data |>
+    filter(min_delay > 0 & vehicle != 0) |>
+    group_by(year, line2, station2, bound2) |>
+    # summarise(avg = mean(min_delay)) |>
+    summarise(total_delay = sum(min_delay)) |>
+    drop_na() |>
+    spread(year, total_delay) |>
+    janitor::adorn_totals("col") |>
+    as_tibble() |>
+    arrange(desc(Total)) |>
+    mutate_if(is.numeric, replace_na, 0) |>
+    left_join(
+        delay_line_station_bound |>
+            select(-year, -total_delay) |>
+            distinct() |>
+            arrange(desc(b1)),
+        by = c("line2", "station2", "bound2")
+    ) |> 
+    arrange(desc(b1)) |> 
+    mutate_if(is.numeric, round, 2) |>
+    gt() |>
+    tab_options(page.height = "100%", container.height = "500px", table.width = "500px") |> 
+    cols_label(
+        b1 = html("<b>delay growth rate<b/>")
+    )
+```
+
+### Open by codes (description)
+
+```{r}
+delay_line_station_bound_codes <- data |>
+    filter(min_delay > 0 & vehicle != 0) |>
+    group_by(year, line2, station2, bound2, description) |>
+    summarise(total_delay = sum(min_delay)) |>
+    drop_na() |>
+    group_by(station2, line2, bound2, description) |>
+    group_split() |>
+    map(function(.x) {
+        m0 <- lm(total_delay ~ year, data = .x)
+        # .x$b0 <- coefficients(m0)[1]
+        .x$b1 <- coefficients(m0)[2]
+        .x
+    }) |>
+    bind_rows()
+
+data |>
+    filter(min_delay > 0 & vehicle != 0) |>
+    group_by(year, line2, station2, bound2, description) |>
+    # summarise(avg = mean(min_delay)) |>
+    summarise(total_delay = sum(min_delay)) |>
+    drop_na() |>
+    spread(year, total_delay) |>
+    janitor::adorn_totals("col") |>
+    as_tibble() |>
+    arrange(desc(Total)) |>
+    mutate_if(is.numeric, replace_na, 0) |>
+    left_join(
+        delay_line_station_bound_codes |>
+            select(-year, -total_delay) |>
+            distinct() |>
+            arrange(desc(b1)),
+        by = c("line2", "station2", "bound2", "description")
+    ) |>
+    left_join(
+        data |>
+            filter(min_delay > 0 & vehicle != 0) |>
+            group_by(year, line2, station2, bound2, description) |>
+            distinct(year) |>
+            count() |>
+            group_by(line2, station2, bound2, description) |>
+            summarise(year_n = sum(n))
+            ,
+        by = c("line2", "station2", "bound2", "description")
+    ) |> 
+    arrange(desc(year_n), desc(b1)) |> 
+    mutate_if(is.numeric, round, 2) |>
+    gt() |>
+    tab_options(page.height = "100%", container.height = "500px", table.width = "500px") |>
+    cols_label(
+        b1 = html("<b>delay growth rate<b/>"),
+        year_n = html("<b>Year frequency<b/>")
+    )
+```
+
+
+## For vehicles, which are the main issues?
+
+```{r}
+worst_vehicles <- data |>
+    filter(vehicle != 0) |>
+    group_by(vehicle) |>
+    count() |>
+    ungroup() |> 
+    arrange(desc(n)) |>
+    slice(1:10)
+
+worst_vehicles |>
+    gt() |>
+    tab_options(page.height = '100%', container.height = '500px', table.width = '500px') |>
+    cols_align(align = "center")
+
+data |>
+    filter(
+        vehicle != 0 &
+            vehicle %in% c(worst_vehicles$vehicle)
+    ) |>
+    group_by(year, vehicle, description) |>
+    count() |>
+    arrange(desc(n)) |>
+    spread(year, n) |> 
+    janitor::adorn_totals("col") |>
+    as_tibble() |>
+    arrange(desc(Total)) |>
+    mutate_if(is.numeric, replace_na, 0) |> 
+    gt() |>
+    tab_options(page.height = '100%', container.height = '500px', table.width = '500px') |>
+    cols_align(align = "center")
+```
+
+# Highlights
+
+## About the data
+
+For the primary variables, aggregate variables, like station, code, bound, and line is
+necessary to spend some time improving their quality, creating a process to standard better
+because there are many misspellings, the station is the worst.
+
+Understand what it means when the vehicle is 0 and min_delay is zero. There is only an 
+intuition about it.
+
+## Next steps
+
+Some paths that are possible to go through.
+
+* Create KPIs for the performance of the improvement or not the combination of line-station-bound-code. It will be beneficial to 
+direct the resources to maintain and improve the quality of service.
+* Select specific codes that are more important and see where are the most common spots and discuss what could be made to solve them.
+* Create KPIs for the performance of vehicles 
+* Create a report for the most delay common problems and discuss how to avoid this.
+* For situations that cannot be remedied, like assault, try to understand where are the typical spots if there are any dates/spots often.
+
+## Observation
+
+In the PDF that was attached to the email, one of the questions was if we could predict the delay time. The answer now is: No, 
+we need to see what kind of issue can be prevented or not, as I mentioned before. And for those we cannot control, we have to 
+try to understand and see if they can become something preventable because, for example, assaults are not something preventable; you cannot determine where, who and how, but we can know the familiar places and maybe common week-days and through this take some
+decisions. But something that we must have in mind is that as soon we solve this kind of problem for a specific spot, the phenomenon
+will change, is something dynamic that is unpredictable just understandble.
+
+## Wearing the shirt
+
+If it were me who had to make the decision, I would create these performance panels to monitor line-station-bound-code and discuss 
+with the responsible people the main reasons why this happens, and maybe organize some experiments to evaluate the effectiveness
+of the solution. 
+
+Sequentially I will focus on the performance vehicles and try to figure out that. 
+
+After this, reevaluate everything to see if more is necessary.
+
+
+# Just for fun
+
+```{r}
+just_for_fun <- data |>
+    mutate(year = as.character(year)) |>
+    group_by(year, ymd) |>
+    count() |>
+    ungroup()
+
+just_for_fun |>
+    arrange(ymd) |> 
+    filter(year %in% c("2019", "2020", "2021", "2022")) |> 
+    select(ymd, n, year) |> 
+    dplyr::mutate(year = format(ymd, "%Y")) |> # get year from date
+    group_by(year) |> 
+    e_charts(ymd, height = "1000px", width = "1000px") |>
+    e_calendar(range = "2019", top = "40") |>
+    e_calendar(range = "2020", top = "260") |>
+    e_calendar(range = "2021", top = "480") |>
+    e_calendar(range = "2022", top = "700") |>
+    e_heatmap(n, coord_system = "calendar") |> 
+    e_visual_map(max = max(just_for_fun$n)) |> 
+    e_title("Number of issues per day") |>
+    e_tooltip("item")
+```
