@@ -56,9 +56,17 @@ HTMLWidgets.widget({
           mapboxgl.accessToken = x.mapboxToken;
         }
         
+        if(!x.mainOpts)
+          x.mainOpts = [];
+        x.mainOpts.renderer = x.renderer;
+
         chart = echarts.init(document.getElementById(el.id), x.theme, x.mainOpts);
         
         opts = evalFun(x.opts);
+
+        if(x.morphed){
+          opts = x.opts[0][x.morphed.default]   
+        }
         
         if(x.draw === true)
           chart.setOption(opts);
@@ -194,6 +202,13 @@ HTMLWidgets.widget({
         
         if(x.hasOwnProperty('groupDisconnect')){
           echarts.disconnect(x.groupDisconnect);
+        }
+        
+        if(x.morphed){
+          opts = x.opts[0];
+          console.log(x.morphed);
+          let fn = eval(x.morphed.callback);
+          fn();
         }
 
       },
@@ -352,11 +367,11 @@ if (HTMLWidgets.shinyMode) {
     function(data) {
       if (typeof chart != 'undefined') {
         $.ajax({ 
-          url: x.geoJSON, 
+          url: data.geoJSON, 
           dataType: 'json', 
-          async: x.mapAsync,
+          async: data.mapAsync,
           success: function(json){ 
-            echarts.registerMap(x.mapName, json);
+            echarts.registerMap(data.mapName, json);
           } 
         });
         

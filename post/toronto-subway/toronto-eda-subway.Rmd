@@ -15,10 +15,9 @@ showTags: true
 showPagination: true
 showSocial: true
 showDate: true
-draft: false
-# thumbnailImage: post/montreal-real-estate/data/thumbnail.jpg
+thumbnailImage: https://tce-live2.s3.amazonaws.com/media/media/a0103c46-7dc7-4df0-b488-fdc41e4de918.jpg
 thumbnailImagePosition: left
-summary: ""
+summary: "Just sharing a EDA that I made for fun."
 ---
 
 ```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
@@ -649,25 +648,6 @@ direct the resources to maintain and improve the quality of service.
 * Create KPIs for the performance of vehicles 
 * Create a report for the most delay common problems and discuss how to avoid this.
 * For situations that cannot be remedied, like assault, try to understand where are the typical spots if there are any dates/spots often.
-
-## Observation
-
-In the PDF that was attached to the email, one of the questions was if we could predict the delay time. The answer now is: No, 
-we need to see what kind of issue can be prevented or not, as I mentioned before. And for those we cannot control, we have to 
-try to understand and see if they can become something preventable because, for example, assaults are not something preventable; you cannot determine where, who and how, but we can know the familiar places and maybe common week-days and through this take some
-decisions. But something that we must have in mind is that as soon we solve this kind of problem for a specific spot, the phenomenon
-will change, is something dynamic that is unpredictable just understandble.
-
-## Wearing the shirt
-
-If it were me who had to make the decision, I would create these performance panels to monitor line-station-bound-code and discuss 
-with the responsible people the main reasons why this happens, and maybe organize some experiments to evaluate the effectiveness
-of the solution. 
-
-Sequentially I will focus on the performance vehicles and try to figure out that. 
-
-After this, reevaluate everything to see if more is necessary.
-
 
 # Just for fun
 

@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Wavrzenczak</title>
+    <title>Waurzenczak</title>
     <link>https://varvenza.com/</link>
-    <description>Recent content on Wavrzenczak</description>
+    <description>Recent content on Waurzenczak</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 29 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://varvenza.com/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 01 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://varvenza.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Exploring the subway data from Toronto</title>
+      <link>https://varvenza.com/post/toronto-subway/eda-toronto-subway/</link>
+      <pubDate>Wed, 01 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://varvenza.com/post/toronto-subway/eda-toronto-subway/</guid>
+      <description>Just sharing a EDA that I made for fun.</description>
+    </item>
+    
     <item>
       <title>What is the oldest property in Montreal?</title>
       <link>https://varvenza.com/post/montreal-real-estate/real-estates-year-built/</link>
