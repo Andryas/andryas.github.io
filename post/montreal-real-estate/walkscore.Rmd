@@ -3,11 +3,11 @@ title: "Let's take a walk in Montreal"
 subtitle: "From the series: real estate in Montreal"
 author: Andryas Wavrzenczak
 date: '2022-05-17'
-slug: real-estates-montreal-walkscore
+slug: real-estate-montreal-walkscore
 categories:
-  - real-estates
+  - real-estate
 tags:
-  - real-estates
+  - real-estate
   - montreal
   - walkscore
 comments: true

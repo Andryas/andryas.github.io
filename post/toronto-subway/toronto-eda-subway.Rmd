@@ -664,7 +664,7 @@ just_for_fun |>
     select(ymd, n, year) |> 
     dplyr::mutate(year = format(ymd, "%Y")) |> # get year from date
     group_by(year) |> 
-    e_charts(ymd, height = "1000px", width = "1000px") |>
+    e_charts(ymd, height = "1000px", width = "1250px") |>
     e_calendar(range = "2019", top = "40") |>
     e_calendar(range = "2020", top = "260") |>
     e_calendar(range = "2021", top = "480") |>

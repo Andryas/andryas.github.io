@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Waurzenczak</title>
-    <link>https://varvenza.com/</link>
-    <description>Recent content on Waurzenczak</description>
+    <title>real-estate on Waurzenczak</title>
+    <link>https://varvenza.com/categories/real-estate/</link>
+    <description>Recent content in real-estate on Waurzenczak</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 01 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://varvenza.com/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Exploring the subway data from Toronto</title>
-      <link>https://varvenza.com/post/toronto-subway/eda-toronto-subway/</link>
-      <pubDate>Wed, 01 Jun 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://varvenza.com/post/toronto-subway/eda-toronto-subway/</guid>
-      <description>Just sharing a EDA that I made for fun.</description>
-    </item>
-    
+    <lastBuildDate>Sun, 29 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://varvenza.com/categories/real-estate/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>What is the oldest property in Montreal?</title>
       <link>https://varvenza.com/post/montreal-real-estate/real-estate-year-built/</link>
@@ -32,16 +23,6 @@
       
       <guid>https://varvenza.com/post/montreal-real-estate/real-estate-montreal-walkscore/</guid>
       <description>An exploration of the best places to walk in Montreal according to the walkscore.com. We find 11 neighbourhoods with a walkscore average greater than 60, which means good places for those looking for mobility.</description>
-    </item>
-    
-    <item>
-      <title>Async programming in Shiny plus Spinners</title>
-      <link>https://varvenza.com/post/async-programming-in-shiny-plus-spinners/</link>
-      <pubDate>Sat, 05 Mar 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://varvenza.com/post/async-programming-in-shiny-plus-spinners/</guid>
-      <description>&lt;p&gt;Greetings earthlings!&lt;/p&gt;
-&lt;p&gt;If you are reading this, you already know the power and beauty of Shiny, so I won’t spend your time explaining this.&lt;/p&gt;</description>
     </item>
     
   </channel>
